@@ -1,0 +1,182 @@
+package dsd;
+
+import java.sql.*;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class ds {
+	/* 쿼리문 처리 및 소켓 변수 */
+	private String data = "";
+	private String dedata = "";
+	private Socket socket = null;
+    private int port = 10001;			// 설정 필요 : 포트 번호
+	/* db용 변수들 */
+	public static String driver = "com.mysql.jdbc.Driver";
+	public static String url = "jdbc:mysql://localhost:3306/kwbook";		
+	public static String dbId = "root";	// 설정 필요 : 계정명
+	public static String dbPw = "0909qq";	// 설정 필요 : 암호
+	private Connection con = null;
+	private PreparedStatement stmt = null;
+	private ResultSet result = null;
+	private Integer result_count = 0;
+	
+	public static void main(String[] args) throws IOException{
+		ds serv = new ds();
+		serv.serverRun();
+	}
+	public void serverRun() throws IOException{
+        
+        ServerSocket server = null;
+        
+        /* input stream 변수들 초기화 */
+        InputStream input_stream = null;
+        InputStreamReader reader = null;
+        BufferedReader buffer = null;
+        
+        try{
+            server = new ServerSocket(port);
+            while(true){
+                System.out.println("waiting access...");
+                socket = server.accept();         
+                System.out.println("Access! : " + socket.getInetAddress());
+                
+                input_stream = socket.getInputStream();
+                reader = new InputStreamReader(input_stream);
+                buffer = new BufferedReader(reader);
+                
+                data=buffer.readLine();	// 요청 쿼리문 저장
+
+                
+                System.out.println(data);
+                /* 쿼리문 처리 */
+                queryProcess(data,socket);
+                
+                System.out.println("return result!");
+            }
+        }catch (Exception e) {
+                e.printStackTrace();
+            }finally {
+                try{
+                    buffer.close();
+                    reader.close();
+                    input_stream.close();
+                    server.close();
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    
+    
+    public void sendResult(String data, Socket socket){
+    	/* output stream 변수들 초기화 */
+        OutputStream output_stream = null;
+        OutputStreamWriter writer = null;
+        BufferedWriter buffer = null;
+        
+        try{
+            output_stream = socket.getOutputStream();
+            writer = new OutputStreamWriter(output_stream);
+            buffer = new BufferedWriter(writer);
+           
+            
+            System.out.println(data);
+            
+            buffer.write(data);            
+            buffer.flush();
+        }catch(Exception e1){
+            e1.printStackTrace();
+        }finally {
+            try{
+                buffer.close();
+                writer.close();
+                output_stream.close();
+                socket.close();
+            }catch(Exception e1){
+                e1.printStackTrace();
+            }
+        }
+    }
+    
+    public void queryProcess(String query,Socket socket){
+    	try{
+    		
+    		Class.forName(driver);
+    		con = DriverManager.getConnection(url,dbId,dbPw);
+    		stmt = con.prepareStatement(query);
+    		
+    		
+    		/* 질의와 갱신 확인 */
+    		if(query.substring(0, 6).compareToIgnoreCase("select") == 0){
+    			result = stmt.executeQuery();					// 질의라면 질의 결과를 result에 저장
+
+        		System.out.println("why2");
+    			if(!result.next()){
+        			dedata = "NULL";		// 질의 결과 없을시 NULL 보냄
+        		}else{
+        			// 결과가 있다면 결과 속성값 조합
+        			ResultSetMetaData mData = result.getMetaData();
+        			int col_count = mData.getColumnCount();			// 속성값 개수
+        			while(result.next()){
+	        			for(int i = 1; i <= col_count; i++){
+	        				int col_type = mData.getColumnType(i);			// 속성 타입.
+	        				
+	        				if(col_type == Types.DATE){
+	        					dedata += result.getDate(i).toString();
+	        				}else if(col_type == Types.VARCHAR){
+	        					dedata += result.getString(i);
+	        				}else if(col_type == Types.INTEGER){
+	        					dedata += result.getInt(i);
+	        				}
+	        				if(i != col_count)
+	        					dedata += ":";
+	        			}
+	        			dedata += "/";
+        			}
+        		}
+        		sendResult(dedata, socket);	// 조합된 문자열 전송
+    		}else{
+    			result_count = stmt.executeUpdate();			// 갱신이라면 업데이트 개수를 result_count에 저장
+    			
+    			if(result_count == 0){										// 갱신 결과 0일 경우
+    				sendResult("NoUpdate",socket);
+    			}else{
+    				sendResult(result_count.toString(),socket);		// 갱신 성공시 갱신된 개수 전송
+    			}
+    		}
+    		
+    	}catch(ClassNotFoundException e){
+    		System.out.println("Class not Found!");
+    	}catch(SQLException e){
+    		e.printStackTrace();
+    	}finally{
+    		if(result != null){
+    			try{
+    				result.close();
+    			}catch(SQLException e){
+    	    		System.out.println("SQL Error : close resultset");
+    	    		}
+    		}else if(stmt != null){
+    			try{
+    				stmt.close();
+    			}catch(SQLException e){
+    	    		System.out.println("SQL Error : close statement");
+    	    		}
+    		}else if(con != null){
+    			try{
+    				con.close();
+    			}catch(SQLException e){
+    	    		System.out.println("SQL Error : close connection");
+    	    		}
+    		}
+    	}
+    }
+}
