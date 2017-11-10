@@ -1,7 +1,7 @@
 # ShoppingBookWeb
 DataBase  || termProject : Book Shopping Web
 
-Data : 2017 / 05
+Date : 2017 / 05
 
 Kwang woon Univ DataBase Term Project
 
