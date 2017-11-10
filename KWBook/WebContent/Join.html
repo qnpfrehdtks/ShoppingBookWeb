@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+
+
+<style> 
+.CreateAccountImg {  position:absolute; top:320px; left: 18%;   }
+.Logo { width: 200px; }
+.loginbox{ position:absolute; top:250px; width: 350px; height: 400px; left :40%; border:5px solid; padding:10px; color: firebrick;}
+</style>
+</head>
+<body>
+
+<!-- 광운 서점 로고 -->
+<a href = "MainHomepage.jsp"><div style="float: left; width: 15%; padding:10px;">
+<img class ="Logo" src ="image\Logo.png"> 
+</div> </a>
+
+<!-- 그냥 글 끄적 -->
+<p style = " font-size:1.5em;  color: firebrick; position:absolute; top:80px; left: 20%;"> 
+회원님을 환영합니다! <br>
+상품 주문, 마이페이지, 티켓예매확인 및 취소, 내 블로그 등은 로그인후 이용할 수 있습니다. 
+</P>
+
+<h1 style="color: firebrick; position:absolute; left: 40%; top:120px;"> 
+    <br> Sign in </h1> <br> <br> <br> <br> <hr>
+
+
+<!-- 여기는 회원가입 form -->
+<div id ="loginform" class="loginbox">
+<form action ="JoinProcess.jsp" method="POST">
+    <br>
+<br>
+ I D <br> <input type="text" name="id" size="35"> 
+ <input type="button" name="checkDupID" value="check">  <br>
+ Password <br> <input type="password" name="pw" size="35"><br>
+ Name <br> <input type="text" name="name" size="35"> 
+ Phonenumber <br> <input type="text" name="pn" size="35">  <br>
+ Address <br> <input type="text" name="addr" size="35">  <br>
+
+ <!-- 회원 가입 완료 버튼 -->
+ <div class="CreateAccountImg">
+<input type="image" src="image\CreateAccountLogo.png" width="250"> </div>
+
+
+</form>
+</div>
+</body>
+</html>

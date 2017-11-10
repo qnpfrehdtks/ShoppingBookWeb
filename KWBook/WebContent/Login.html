@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html>
+   
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!-- 검색 결과 출력 JSP 활용 -->
+
+
+<style> 
+.loginImg {  position:absolute; top:200px; left: 12%;   }
+.JoinImg {  position:absolute; top:200px; left: 32%;   }
+.MyPageImg {  position:absolute; top:202px; left: 52%;   }
+.CartImg {  position:absolute; top:195px; left: 77%;   }
+
+.Logo { width: 200px; }
+.loginbox{ position:absolute; top:250px; width: 350px; height: 250px; left :40%; border:5px solid; padding:10px; color: firebrick;}
+</style>
+</head>
+<body>
+
+<!-- 광운 서점 로고 -->
+<a href = "MainHomepage.jsp"><div style="float: left; width: 15%; padding:10px;">
+<img class ="Logo" src ="image\Logo.png"> 
+</div> </a>
+
+
+<p style = " font-size:1.5em;  color: firebrick; position:absolute; top:80px; left: 20%;"> 
+회원님을 환영합니다! <br>
+상품 주문, 마이페이지, 티켓예매확인 및 취소, 내 블로그 등은 로그인후 이용할 수 있습니다. 
+
+</p>
+
+<h1 style="color: firebrick; position:absolute; left: 40%; top:120px;"> 
+    <br> Login </h1> <br> <br> <br> <br> <hr>
+
+<!-- 여기는 로그인 form -->
+<div id ="loginform" class="loginbox">
+<form action ="MainHomepage.jsp" method="POST">
+    <br>
+<br>
+ I D <br> <input type="text" name="id" size="35"><br> <br>
+ Password <br> <input type="password" name="pw" size="35">  <br>
+
+<!-- 로그인 버튼 누르자! -->
+<div class="loginImg">
+<input type="image" src="image\LoginLogo.png" width="50"> </div>
+
+<!-- 회원가입 창으로 -->
+<a href=Join.html class="JoinImg"><img src="image\JoinLogo.png" width="40"> </a>
+
+<!-- MyPage로 -->
+<a href=https://www.kw.ac.kr/en/index.do class="MyPageImg"><img src="image\MyPageLogo.png" width="70"></img> </a>
+
+<!-- 나의 카트창으로 -->
+<a href=https://www.kw.ac.kr/en/index.do class="CartImg"><img src="image\CartLogo.png" width="40"></img> </a>
+</form>
+
+</div>
+</body>
+</html>

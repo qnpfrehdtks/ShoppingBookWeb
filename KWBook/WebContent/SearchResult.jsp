@@ -1,0 +1,198 @@
+<%@page import="java.sql.Statement"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.Connection"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.SQLException"%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<% 
+   String BookID = "";
+   String ID = request.getParameter("id");
+   String PW = request.getParameter("pw");
+
+   String strisManger = request.getParameter("ismanager");
+   
+   boolean isManager = new Boolean(strisManger).booleanValue();
+
+
+   Connection conn = null;
+   Statement stmt = null;
+   ResultSet rs = null;
+   // searchObject는 검색 대상   searchSubject 찾을 대상의 주제(제목, 작가 등등)
+   String searchObject =request.getParameter("searchObject");
+   String searchSubject =request.getParameter("searchSubject");
+   
+   Class.forName("com.mysql.jdbc.Driver");
+   String url = "jdbc:mysql://localhost:3306/kwbook";
+   conn = DriverManager.getConnection(url,"root", "0909qq");
+   stmt = conn.createStatement();
+   stmt.executeQuery("USE kwbook");
+
+%>
+
+    <!-- CSS!! ㅎㅎ -->
+<style>
+
+.titleFont{
+style="
+font-style: italic ;  
+font-weight: bold;  
+font-size: 1.5em;
+line-height: 1.0em;  
+color: firebrick;
+font-family: arial;
+    }
+    
+.infoFont{
+style="
+font-style: italic;  
+font-weight: bold;  
+font-size: 1.0em;
+line-height: 0.8em;  
+color: firebrick;
+font-family: arial;
+    }
+    
+   
+.searchResultBox{
+    position:relative;  background-color: white;
+    width: 1000px;
+    height: 165px;
+    border: 3px solid firebrick;
+    padding: 20px;
+    margin: 25px;  left: 5%; 
+    }
+
+.searchResultinfo{ position:relative; top: -135px; left: 20%; }
+.searchImg{  position:absolute; top:10px; left: 90%;   }
+.searchbox{ position:absolute; top:25px; width: 400px; left :35%; border:3px solid; padding:10px; color: firebrick;}
+.ToCartImg {  position:relative; top:35px; left: 50%;   }
+.DeleteImg {  position:relative; top:35px; left: 20%;   }
+.StockImg {  position:relative; top:-40px; left: 50%;   }
+.StockInput {  position:relative; top:-10px; left: 40%;   }
+
+.Logo { width: 200px; }
+</style>
+
+</head>
+<body>
+
+
+
+
+<form action ="MainHomepage.jsp" method="POST">
+<input type ="image" src="image\Logo.png" width="200" name="id" value=<%=ID%>>
+<input type ="hidden" name="pw" value=<%=PW%>>
+</form>
+
+<!-- 여기는 검색 form -->
+<div class="searchbox">
+<form action ="SearchResult.jsp" method="POST">
+<!-- 검색 종류 머할지 정함. -->
+<select name="searchSubject">
+    <option value="title" id = "title" selected> title </option>
+    <option value="author" id = "author"> author </option>
+    <option value="publisher" id = "publisher"> publisher </option> 
+    <!-- 검색 입력 -->
+</select>
+
+<input type="text" name="searchObject" size="35"> 
+<input type="hidden" name="id" value=<%=ID%> > 
+<input type="hidden" name="pw" value=<%=PW%> > 
+<input type="hidden" name="ismanager" value=<%=isManager%> > 
+
+<!-- 검색 버튼 클릭 -->
+<div class="searchImg">
+<input type="image" src="image\SearchLogo.png" width="30"> </div>
+</form>
+
+</div>
+<br>
+<h1 style="color: firebrick; position:absolute; left: 40%;"> 
+RESEARCH RESULT </h1> <hr> <br>
+<!-- 검색 결과 출력 JSP 활용 -->
+<%
+ 
+
+try 
+{
+
+rs = stmt.executeQuery("select * from book where `"+searchSubject+"` LIKE '%"+searchObject+"%'");             
+
+while(rs.next()) {           
+	
+	BookID = rs.getString("book_id");
+%>
+<!-- 여기는 검색 결과 form -->
+
+
+
+
+<div class="searchResultBox">
+
+<img src="image\<%=rs.getString("image")%>.jpg" width="120"> 
+
+<div class="searchResultinfo">
+
+ <div class="titleFont"> <%= rs.getString("title")%> <br><br></div> 
+ <div style="display:inline" class="infoFont"> Author | </div> <%= rs.getString("author")%> &nbsp; &nbsp;
+ <div style="display:inline" class="infoFont"> Publisher | </div> <%= rs.getString("publisher")%>  &nbsp; &nbsp;
+ <div style="display:inline" class="infoFont"> Cost | </div> <%= rs.getString("cost")%> $ &nbsp; &nbsp;
+ <div style="display:inline" class="infoFont"> Stock | </div> <%= rs.getString("stock")%> &nbsp; &nbsp;
+
+
+<% if(!isManager) {%>
+<form action="Cart.jsp" method="POST">
+ <div class="ToCartImg">
+<input type="image" src="image\ToCartLogo.png" width="110"> 
+</div>
+ <input type="hidden" name="id" value=<%=ID%> > 
+ <input type="hidden" name="pw" value=<%=PW%> > 
+  <input type="hidden" name="bookID" value=<%=BookID%> >
+</form>
+
+
+<% }
+else {%>
+
+<form action="bookDeleteProcess.jsp" method="POST">
+ <div class="DeleteImg">
+<input type="image" src="image\DeleteLogo.png" width="110"> 
+</div>
+ <input type="hidden" name="id" value=<%=ID%> > 
+ <input type="hidden" name="pw" value=<%=PW%> > 
+  <input type="hidden" name="bookID" value=<%=BookID%> >
+
+</form>
+
+<form action="bookStockProcess.jsp" method="POST">
+ <div class="StockInput">
+<input type="text" name="stock" value=<%= rs.getString("stock")%> size="5"> </div>
+ <div class="StockImg">
+ <input type="image" src="image\EnterLogo.png" width="110"> </div>
+ <input type="hidden" name="id" value=<%=ID%> > 
+ <input type="hidden" name="pw" value=<%=PW%> > 
+  <input type="hidden" name="bookID" value=<%=BookID%> >
+</form>
+
+<% } %>
+</div>
+</div>
+<%
+} }
+catch(SQLException e) 
+{
+out.println("DB connection error! : " + e.getMessage() ); 
+}
+
+ %><br><br>
+
+
+</body>
+</html>
